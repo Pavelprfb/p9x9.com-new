@@ -70,7 +70,6 @@ export default function AdRedirectLayer({ routeName }) {
   return (
     <div
       className="ad-redirect-layer"
-      aria-hidden="true"
       onClick={handleClick}
     ></div>
   );

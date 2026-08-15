@@ -68,7 +68,7 @@ export default function Header() {
         </a>
 
         <input type="checkbox" id="nav-toggle" aria-hidden="true" />
-        <label htmlFor="nav-toggle" className="hamburger" aria-label="Toggle navigation menu">
+        <label htmlFor="nav-toggle" role="button" className="hamburger" aria-label="Toggle navigation menu">
           <i className="fas fa-bars" aria-hidden="true"></i>
         </label>
 
@@ -82,7 +82,7 @@ export default function Header() {
 
           <div className="dropdown">
             <input type="checkbox" id="about-toggle" aria-hidden="true" />
-            <label htmlFor="about-toggle" className="dropdown-toggle" aria-expanded="false" aria-haspopup="true">
+            <label htmlFor="about-toggle" role="button" className="dropdown-toggle" aria-expanded="false" aria-haspopup="true">
               <i className="fas fa-tags"></i> Categories <i className="fas fa-caret-down dropdown-icon"></i>
             </label>
             <div className="dropdown-content">
@@ -99,7 +99,7 @@ export default function Header() {
 
           <div className="dropdown">
             <input type="checkbox" id="contact-toggle" aria-hidden="true" />
-            <label htmlFor="contact-toggle" className="dropdown-toggle" aria-expanded="false" aria-haspopup="true">
+            <label htmlFor="contact-toggle" role="button" className="dropdown-toggle" aria-expanded="false" aria-haspopup="true">
               <i className="fas fa-phone-alt"></i> Contact <i className="fas fa-caret-down dropdown-icon"></i>
             </label>
             <div className="dropdown-content">
@@ -116,9 +116,12 @@ export default function Header() {
         <div className="mobile-overlay"></div>
       </div>
 
+      {/* FontAwesome async (non render-blocking) */}
       <link
         rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        media="print"
+        onLoad={(e) => (e.currentTarget.media = "all")}
       />
     </header>
   );

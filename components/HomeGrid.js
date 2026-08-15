@@ -1,17 +1,19 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 
-function VideoCard({ item }) {
+function VideoCard({ item, priority }) {
   return (
     <a href={`/videos/${item.routeName}`} className="video-card-link">
       <div className="video-card">
         <div className="video-thumb">
-          <img
+          <Image
             src={item.imageLink}
-            loading="lazy"
-            decoding="async"
             alt={item.title}
+            fill
+            sizes="(max-width: 600px) 50vw, 25vw"
+            priority={priority}
           />
           <div className="play-overlay">
             <i className="fas fa-play"></i>
@@ -96,7 +98,9 @@ export default function HomeGrid({ query, firstCategory, initialData, total }) {
             No videos found
           </p>
         ) : (
-          items.map((item) => <VideoCard key={item._id} item={item} />)
+          items.map((item, i) => (
+            <VideoCard key={item._id} item={item} priority={i === 0} />
+          ))
         )}
       </div>
 

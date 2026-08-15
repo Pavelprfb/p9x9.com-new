@@ -1,17 +1,19 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Image from "next/image";
 
-function RelatedCard({ item }) {
+function RelatedCard({ item, priority }) {
   return (
     <a href={`/videos/${item.routeName}`} className="video-card-link">
       <div className="video-card">
         <div className="video-thumb">
-          <img
+          <Image
             src={item.imageLink}
-            loading="lazy"
-            decoding="async"
             alt={item.title}
+            fill
+            sizes="(max-width: 480px) 50vw, 160px"
+            priority={priority}
           />
           <div className="play-overlay">
             <i className="fas fa-play"></i>
@@ -113,7 +115,9 @@ export default function RelatedVideos({ currentRouteName, initialItems, total })
             No related videos
           </p>
         ) : (
-          items.map((item) => <RelatedCard key={item._id} item={item} />)
+          items.map((item, i) => (
+            <RelatedCard key={item._id} item={item} priority={i === 0} />
+          ))
         )}
       </div>
 

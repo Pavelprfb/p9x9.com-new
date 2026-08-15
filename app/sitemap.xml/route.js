@@ -47,6 +47,12 @@ export async function GET() {
     xml += `    <priority>0.6</priority>\n`;
     xml += `  </url>\n`;
 
+    xml += `  <url>\n`;
+    xml += `    <loc>https://p9x9.com/videos</loc>\n`;
+    xml += `    <changefreq>daily</changefreq>\n`;
+    xml += `    <priority>0.9</priority>\n`;
+    xml += `  </url>\n`;
+
     posts.forEach((post) => {
       xml += `  <url>\n`;
       xml += `    <loc>https://p9x9.com/videos/${encodeURIComponent(post.routeName)}</loc>\n`;

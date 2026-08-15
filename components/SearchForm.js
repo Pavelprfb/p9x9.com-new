@@ -128,7 +128,7 @@ export default function SearchForm() {
           placeholder="Search video..."
           aria-label="Search video"
         />
-        <button type="submit" className="search-submit">
+        <button type="submit" className="search-submit" aria-label="Search">
           <i className="fas fa-search" aria-hidden="true"></i>
           <span>Search</span>
         </button>
