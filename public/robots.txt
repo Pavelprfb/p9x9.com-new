@@ -30,6 +30,7 @@ Disallow: /signup
 
 # --- Sitemap ---
 Sitemap: https://p9x9.com/sitemap.xml
+Sitemap: https://p9x9.com/sitemap2.xml
 
 # ================================
 # End of robots.txt

@@ -1,6 +1,5 @@
-// /sitemap.xml - same as old controllers/sitemapController.js
-import { connectDB } from "@/lib/db";
-import Post from "@/models/Post";
+// /sitemap.xml - ALL STATIC PAGES ONLY (home, videos, terms, privacy, about, contact)
+// dynamic video URLs live in /sitemap2.xml (video sitemap)
 import cache from "@/lib/cache";
 
 export const dynamic = "force-dynamic";
@@ -11,58 +10,27 @@ export async function GET() {
     let xml = cache.get(cacheKey);
 
     if (!xml) {
-      await connectDB();
-      const posts = await Post.find({}).sort({ createdAt: -1 });
-
       xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
-    xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
+      xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
 
-    xml += `  <url>\n`;
-    xml += `    <loc>https://p9x9.com</loc>\n`;
-    xml += `    <changefreq>daily</changefreq>\n`;
-    xml += `    <priority>1.0</priority>\n`;
-    xml += `  </url>\n`;
+      const pages = [
+        { loc: "https://p9x9.com", changefreq: "daily", priority: "1.0" },
+        { loc: "https://p9x9.com/videos", changefreq: "daily", priority: "0.9" },
+        { loc: "https://p9x9.com/terms", changefreq: "monthly", priority: "0.6" },
+        { loc: "https://p9x9.com/privacy", changefreq: "monthly", priority: "0.6" },
+        { loc: "https://p9x9.com/about", changefreq: "monthly", priority: "0.6" },
+        { loc: "https://p9x9.com/contact", changefreq: "monthly", priority: "0.6" }
+      ];
 
-    xml += `  <url>\n`;
-    xml += `    <loc>https://p9x9.com/terms</loc>\n`;
-    xml += `    <changefreq>daily</changefreq>\n`;
-    xml += `    <priority>1.0</priority>\n`;
-    xml += `  </url>\n`;
+      pages.forEach((p) => {
+        xml += `  <url>\n`;
+        xml += `    <loc>${p.loc}</loc>\n`;
+        xml += `    <changefreq>${p.changefreq}</changefreq>\n`;
+        xml += `    <priority>${p.priority}</priority>\n`;
+        xml += `  </url>\n`;
+      });
 
-    xml += `  <url>\n`;
-    xml += `    <loc>https://p9x9.com/privacy</loc>\n`;
-    xml += `    <changefreq>daily</changefreq>\n`;
-    xml += `    <priority>1.0</priority>\n`;
-    xml += `  </url>\n`;
-
-    xml += `  <url>\n`;
-    xml += `    <loc>https://p9x9.com/about</loc>\n`;
-    xml += `    <changefreq>monthly</changefreq>\n`;
-    xml += `    <priority>0.6</priority>\n`;
-    xml += `  </url>\n`;
-
-    xml += `  <url>\n`;
-    xml += `    <loc>https://p9x9.com/contact</loc>\n`;
-    xml += `    <changefreq>monthly</changefreq>\n`;
-    xml += `    <priority>0.6</priority>\n`;
-    xml += `  </url>\n`;
-
-    xml += `  <url>\n`;
-    xml += `    <loc>https://p9x9.com/videos</loc>\n`;
-    xml += `    <changefreq>daily</changefreq>\n`;
-    xml += `    <priority>0.9</priority>\n`;
-    xml += `  </url>\n`;
-
-    posts.forEach((post) => {
-      xml += `  <url>\n`;
-      xml += `    <loc>https://p9x9.com/videos/${encodeURIComponent(post.routeName)}</loc>\n`;
-      xml += `    <lastmod>${post.updatedAt.toISOString()}</lastmod>\n`;
-      xml += `    <changefreq>daily</changefreq>\n`;
-      xml += `    <priority>0.8</priority>\n`;
-      xml += `  </url>\n`;
-    });
-
-    xml += `</urlset>`;
+      xml += `</urlset>`;
       cache.set(cacheKey, xml, 300);
     }
 
