@@ -1,5 +1,7 @@
-// /sitemap.xml - ALL STATIC PAGES ONLY (home, videos, terms, privacy, about, contact)
-// dynamic video URLs live in /sitemap2.xml (video sitemap)
+// /sitemap.xml - ALL pages: static (home, videos, terms, privacy, about, contact)
+// + every video URL (dynamic) — same as the old combined sitemapController.js
+import { connectDB } from "@/lib/db";
+import Post from "@/models/Post";
 import cache from "@/lib/cache";
 
 export const dynamic = "force-dynamic";
@@ -10,14 +12,17 @@ export async function GET() {
     let xml = cache.get(cacheKey);
 
     if (!xml) {
+      await connectDB();
+      const posts = await Post.find({}).sort({ createdAt: -1 });
+
       xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
       xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
 
       const pages = [
         { loc: "https://p9x9.com", changefreq: "daily", priority: "1.0" },
         { loc: "https://p9x9.com/videos", changefreq: "daily", priority: "0.9" },
-        { loc: "https://p9x9.com/terms", changefreq: "monthly", priority: "0.6" },
-        { loc: "https://p9x9.com/privacy", changefreq: "monthly", priority: "0.6" },
+        { loc: "https://p9x9.com/terms", changefreq: "daily", priority: "1.0" },
+        { loc: "https://p9x9.com/privacy", changefreq: "daily", priority: "1.0" },
         { loc: "https://p9x9.com/about", changefreq: "monthly", priority: "0.6" },
         { loc: "https://p9x9.com/contact", changefreq: "monthly", priority: "0.6" }
       ];
@@ -27,6 +32,15 @@ export async function GET() {
         xml += `    <loc>${p.loc}</loc>\n`;
         xml += `    <changefreq>${p.changefreq}</changefreq>\n`;
         xml += `    <priority>${p.priority}</priority>\n`;
+        xml += `  </url>\n`;
+      });
+
+      posts.forEach((post) => {
+        xml += `  <url>\n`;
+        xml += `    <loc>https://p9x9.com/videos/${encodeURIComponent(post.routeName)}</loc>\n`;
+        xml += `    <lastmod>${post.updatedAt.toISOString()}</lastmod>\n`;
+        xml += `    <changefreq>daily</changefreq>\n`;
+        xml += `    <priority>0.8</priority>\n`;
         xml += `  </url>\n`;
       });
 
