@@ -41,7 +41,8 @@ export async function POST(req) {
 
     revalidateTag("posts");
 
-    return NextResponse.redirect(new URL("/admin/update", req.url), 303);
+    // relative Location keeps the redirect on the real domain behind proxies
+    return new NextResponse(null, { status: 303, headers: { Location: "/admin/update" } });
   } catch (err) {
     console.error(err);
     return new NextResponse("Server Error", { status: 500 });

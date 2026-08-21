@@ -2,23 +2,35 @@
 
 import { useRef, useState } from "react";
 
-// Same as old views/admin/add.ejs (posts to /api/admin/add with toast)
+// Add new post (posts JSON to /api/admin/add with toast + result box)
+const FIELDS = [
+  { id: "routeName", label: "Route Name", icon: "fa-route", placeholder: "my-new-video-post" },
+  { id: "title", label: "Title", icon: "fa-heading", placeholder: "Video title" },
+  { id: "imageLink", label: "Image Link", icon: "fa-image", placeholder: "https://..." },
+  { id: "videoLink", label: "Video Link", icon: "fa-video", placeholder: "https://..." },
+  { id: "duration", label: "Duration", icon: "fa-clock", placeholder: "mm:ss" },
+  { id: "description", label: "Description", icon: "fa-align-left", placeholder: "Short description" },
+  { id: "category", label: "Category", icon: "fa-tags", placeholder: "cat1, cat2, cat3" }
+];
+
 export default function AdminAddForm() {
   const [toastMsg, setToastMsg] = useState("");
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const formRef = useRef(null);
+  const toastTimer = useRef(null);
 
   function showToast(msg) {
     setToastMsg(msg);
-    setTimeout(() => setToastMsg(""), 2500);
+    clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToastMsg(""), 2500);
   }
 
   async function copyInput(id) {
     const input = document.getElementById(id);
     if (input) {
       await navigator.clipboard.writeText(input.value);
-      showToast("✅ Copied");
+      showToast("Copied to clipboard");
     }
   }
 
@@ -26,52 +38,15 @@ export default function AdminAddForm() {
     try {
       const text = await navigator.clipboard.readText();
       document.getElementById(id).value = text;
-      showToast("📋 Pasted");
+      showToast("Pasted");
     } catch {
-      showToast("❌ Paste blocked");
+      showToast("Paste blocked by browser");
     }
   }
 
   function clearInput(id) {
     document.getElementById(id).value = "";
-    showToast("🗑 Cleared");
-  }
-
-  function field(id, label, icon, required = true) {
-    return (
-      <div className="field">
-        <label>{label}</label>
-        <div className="input-wrapper">
-          <div className="input-box">
-            <i className={`fas ${icon}`}></i>
-            <input id={id} name={id} required={required} />
-          </div>
-          <div className="input-btn">
-            <button
-              type="button"
-              className="copy-btn"
-              onClick={() => copyInput(id)}
-            >
-              Copy
-            </button>
-            <button
-              type="button"
-              className="paste-btn"
-              onClick={() => pasteInput(id)}
-            >
-              Paste
-            </button>
-            <button
-              type="button"
-              className="clear-btn"
-              onClick={() => clearInput(id)}
-            >
-              Clear
-            </button>
-          </div>
-        </div>
-      </div>
-    );
+    showToast("Field cleared");
   }
 
   async function handleSubmit(e) {
@@ -107,207 +82,62 @@ export default function AdminAddForm() {
   }
 
   return (
-    <div className="container">
-      <div className="card">
-        <h2>➕ Add New Post</h2>
-
-        <form onSubmit={handleSubmit} ref={formRef}>
-          {field("routeName", "Route Name", "fa-route")}
-          {field("title", "Title", "fa-heading")}
-          {field("imageLink", "Image Link", "fa-image")}
-          {field("videoLink", "Video Link", "fa-video")}
-          {field("duration", "Duration", "fa-clock")}
-          {field("description", "Description", "fa-align-left")}
-          {field("category", "Category", "fa-tags")}
-
-          <button type="submit" disabled={loading}>
-            <i className="fas fa-plus-circle"></i>{" "}
-            {loading ? "Adding..." : "Add"}
-          </button>
-        </form>
-
-        {result && (
-          <div
-            className="api-result"
-            style={{
-              marginTop: "15px",
-              padding: "10px",
-              borderRadius: "8px",
-              fontSize: "13px",
-              background: result.success
-                ? "rgba(76,175,80,0.15)"
-                : "rgba(255,65,65,0.15)",
-              border: `1px solid ${result.success ? "#4CAF50" : "#ff4141"}`
-            }}
-          >
-            <div>Message: {result.message}</div>
-            {result.apiSuccess !== undefined && (
-              <div>
-                API Sync:{" "}
-                {result.apiSuccess ? "✅ Success" : "❌ Failed"} —{" "}
-                {result.apiMessage}
+    <div className="adm-card">
+      <form onSubmit={handleSubmit} ref={formRef} className="adm-form">
+        {FIELDS.map((f) => (
+          <div className="adm-field" key={f.id}>
+            <label htmlFor={f.id}>{f.label}</label>
+            <div className="adm-input-row">
+              <div className="adm-input-box">
+                <i className={`fas ${f.icon}`}></i>
+                <input
+                  id={f.id}
+                  name={f.id}
+                  required
+                  placeholder={f.placeholder}
+                  autoComplete="off"
+                />
               </div>
-            )}
+              <div className="adm-input-tools">
+                <button type="button" className="adm-chip chip-copy" onClick={() => copyInput(f.id)} title="Copy">
+                  <i className="fas fa-copy"></i>
+                </button>
+                <button type="button" className="adm-chip chip-paste" onClick={() => pasteInput(f.id)} title="Paste">
+                  <i className="fas fa-paste"></i>
+                </button>
+                <button type="button" className="adm-chip chip-clear" onClick={() => clearInput(f.id)} title="Clear">
+                  <i className="fas fa-eraser"></i>
+                </button>
+              </div>
+            </div>
           </div>
-        )}
-      </div>
+        ))}
 
-      <div
-        id="toast"
-        style={{
-          position: "fixed",
-          bottom: "20px",
-          left: "50%",
-          transform: "translateX(-50%)",
-          background: "rgba(0,0,0,0.85)",
-          color: "#fff",
-          padding: "10px 18px",
-          borderRadius: "6px",
-          opacity: toastMsg ? 1 : 0,
-          pointerEvents: "none",
-          transition: "0.5s",
-          zIndex: 9999
-        }}
-      >
-        {toastMsg}
-      </div>
+        <button type="submit" className="adm-btn adm-btn-primary adm-btn-block" disabled={loading}>
+          {loading ? (
+            <>
+              <i className="fas fa-spinner fa-spin"></i> Adding...
+            </>
+          ) : (
+            <>
+              <i className="fas fa-circle-plus"></i> Add Post
+            </>
+          )}
+        </button>
+      </form>
 
-      <link
-        rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-      />
+      {result && (
+        <div className={`adm-alert ${result.success ? "adm-alert-success" : "adm-alert-error"}`}>
+          <b>{result.success ? "Success:" : "Failed:"}</b> {result.message}
+          {result.apiSuccess !== undefined && (
+            <div className="adm-alert-sub">
+              API Sync: {result.apiSuccess ? "✅ Success" : "❌ Failed"} — {result.apiMessage}
+            </div>
+          )}
+        </div>
+      )}
 
-      <style jsx>{`
-        .container {
-          max-width: 700px;
-          margin: 0 auto;
-        }
-
-        .card {
-          background: rgba(255, 255, 255, 0.05);
-          backdrop-filter: blur(12px);
-          padding: 25px;
-          border-radius: 15px;
-          border: 1px solid rgba(255, 255, 255, 0.08);
-          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-        }
-
-        h2 {
-          text-align: center;
-          margin-bottom: 25px;
-        }
-
-        .field {
-          margin-bottom: 18px;
-        }
-
-        label {
-          display: block;
-          margin-bottom: 6px;
-          font-weight: 500;
-        }
-
-        .input-wrapper {
-          display: flex;
-          gap: 6px;
-          flex-wrap: wrap;
-        }
-
-        .input-box {
-          position: relative;
-          flex: 1;
-        }
-
-        .input-box i {
-          position: absolute;
-          top: 50%;
-          left: 12px;
-          transform: translateY(-50%);
-          color: #aaa;
-          font-size: 14px;
-        }
-
-        input {
-          width: 100%;
-          padding: 10px 10px 10px 36px;
-          border-radius: 8px;
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          background: rgba(255, 255, 255, 0.1);
-          color: #fff;
-          font-size: 14px;
-        }
-
-        input:focus {
-          outline: none;
-          border-color: #00c6ff;
-        }
-
-        .input-btn {
-          display: flex;
-          gap: 6px;
-        }
-
-        .input-btn button {
-          padding: 10px;
-          border: none;
-          border-radius: 6px;
-          cursor: pointer;
-          font-weight: 600;
-          transition: 0.3s;
-        }
-
-        .copy-btn {
-          background: #4caf50;
-          color: #fff;
-        }
-        .copy-btn:hover {
-          background: #3b8a40;
-        }
-
-        .paste-btn {
-          background: #ffa726;
-          color: #fff;
-        }
-        .paste-btn:hover {
-          background: #fb8c00;
-        }
-
-        .clear-btn {
-          background: #ff4141;
-          color: #fff;
-        }
-        .clear-btn:hover {
-          background: #d70000;
-        }
-
-        button[type="submit"] {
-          width: 100%;
-          padding: 12px;
-          border: none;
-          border-radius: 8px;
-          background: linear-gradient(45deg, #00c6ff, #0072ff);
-          color: #fff;
-          font-size: 16px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: 0.3s;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
-        }
-
-        button[type="submit"]:hover {
-          transform: scale(1.03);
-          box-shadow: 0 5px 15px rgba(0, 114, 255, 0.4);
-        }
-
-        @media (max-width: 480px) {
-          .input-wrapper {
-            flex-direction: column;
-          }
-        }
-      `}</style>
+      <div className={`adm-toast ${toastMsg ? "show" : ""}`}>{toastMsg}</div>
     </div>
   );
 }

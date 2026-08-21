@@ -16,7 +16,10 @@ export async function POST(req, { params }) {
     await Post.findByIdAndUpdate(id, data);
     revalidateTag("posts");
 
-    return NextResponse.redirect(new URL("/admin/update", req.url), 303);
+    // relative Location: browsers resolve it against the current origin, so the
+    // redirect stays on the real domain even behind a proxy where req.url is
+    // http://localhost:3000
+    return new NextResponse(null, { status: 303, headers: { Location: "/admin/update" } });
   } catch (err) {
     console.error(err);
     return NextResponse.json(

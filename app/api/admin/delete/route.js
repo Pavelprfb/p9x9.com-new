@@ -26,7 +26,8 @@ export async function POST(req) {
     await Post.findOneAndDelete({ routeName });
     revalidateTag("posts");
 
-    return NextResponse.redirect(new URL("/admin/delete", req.url), 303);
+    // relative Location keeps the redirect on the real domain behind proxies
+    return new NextResponse(null, { status: 303, headers: { Location: "/admin/delete" } });
   } catch (error) {
     console.error("Delete Error:", error);
     return new NextResponse("Something went wrong", { status: 500 });

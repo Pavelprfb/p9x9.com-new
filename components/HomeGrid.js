@@ -99,7 +99,7 @@ export default function HomeGrid({ query, firstCategory, initialData, total }) {
           </p>
         ) : (
           items.map((item, i) => (
-            <VideoCard key={item._id} item={item} priority={i === 0} />
+            <VideoCard key={item._id} item={item} priority={i < 6} />
           ))
         )}
       </div>

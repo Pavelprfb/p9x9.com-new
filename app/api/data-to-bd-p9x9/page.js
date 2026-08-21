@@ -4,6 +4,7 @@
 import { Suspense } from "react";
 import AdminListLoader from "@/components/AdminListLoader";
 import AdminListSkeleton from "@/components/AdminListSkeleton";
+import AdminShell from "@/components/AdminShell";
 
 export const dynamic = "force-dynamic";
 
@@ -13,11 +14,14 @@ export const metadata = {
 
 export default async function DataToBdP9x9Page() {
   return (
-    <div className="all-data-body">
-      <h2>Data To Desi.P9X9</h2>
+    <AdminShell
+      title="Data to Desi.P9X9"
+      subtitle="Push posts to the desi.p9x9.com backend, one by one."
+      wide
+    >
       <Suspense fallback={<AdminListSkeleton />}>
         <AdminListLoader apiUrl="/api/admin/posts" type="desi" />
       </Suspense>
-    </div>
+    </AdminShell>
   );
 }

@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { getAdmin } from "@/lib/adminAuth";
 import AdminListLoader from "@/components/AdminListLoader";
 import AdminListSkeleton from "@/components/AdminListSkeleton";
+import AdminShell from "@/components/AdminShell";
 
 export const dynamic = "force-dynamic";
 
@@ -16,12 +17,14 @@ export default async function AdminDeletePage() {
   if (!admin) redirect("/admin");
 
   return (
-    <div className="admin-delete-body">
-      <h1>All Posts - Delete Panel</h1>
-
+    <AdminShell
+      title="Delete Posts"
+      subtitle="Browse posts and remove the ones you no longer need."
+      wide
+    >
       <Suspense fallback={<AdminListSkeleton />}>
         <AdminListLoader apiUrl="/api/admin/posts" type="delete" />
       </Suspense>
-    </div>
+    </AdminShell>
   );
 }

@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { getAdmin } from "@/lib/adminAuth";
 import AdminListLoader from "@/components/AdminListLoader";
 import AdminListSkeleton from "@/components/AdminListSkeleton";
+import AdminShell from "@/components/AdminShell";
 
 export const dynamic = "force-dynamic";
 
@@ -16,10 +17,14 @@ export default async function AdminLinksP9X9Page() {
   if (!admin) redirect("/admin");
 
   return (
-    <div className="admin-links-body">
+    <AdminShell
+      title="P9X9 to Links.P9X9"
+      subtitle="Review each post and publish it to links.p9x9.com."
+      wide
+    >
       <Suspense fallback={<AdminListSkeleton />}>
         <AdminListLoader apiUrl="/api/admin/posts" type="links" />
       </Suspense>
-    </div>
+    </AdminShell>
   );
 }

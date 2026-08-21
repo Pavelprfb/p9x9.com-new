@@ -1,4 +1,5 @@
 import "./globals.css";
+import Script from "next/script";
 import { siteConfig } from "@/lib/siteConfig";
 
 export const metadata = {
@@ -54,24 +55,43 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        {/* Google tag (gtag.js) */}
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-T9KY79TYK4"></script>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-T9KY79TYK4');`
-          }}
-        />
-        {/* Google Tag Manager */}
-        <script dangerouslySetInnerHTML={{ __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-TNK4FPN5');` }} />
-        {/* End Google Tag Manager */}
         <meta name="google-adsense-account" content="ca-pub-4300319598686746" />
-        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4300319598686746" crossOrigin="anonymous" />
+        {/* AdSense stays a raw head tag (loads ASAP); adsbygoogle rewrites its own
+            tag at runtime, so hydration warnings for it are suppressed.
+            next/script is not used here because it adds data-nscript, which
+            adsbygoogle complains about */}
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4300319598686746"
+          crossOrigin="anonymous"
+          suppressHydrationWarning
+        />
       </head>
       <body>
         {/* Google Tag Manager (noscript) */}
         <noscript dangerouslySetInnerHTML={{ __html: `<iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TNK4FPN5" height="0" width="0" style="display:none;visibility:hidden"></iframe>` }} />
         {/* End Google Tag Manager (noscript) */}
         {children}
+
+        {/* Analytics + AdSense load after hydration via next/script — loading
+            them as raw head tags lets adsbygoogle mutate the DOM around the
+            tags and break React hydration */}
+        <Script
+          strategy="afterInteractive"
+          src="https://www.googletagmanager.com/gtag/js?id=G-T9KY79TYK4"
+        />
+        <Script
+          id="google-gtag-init"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-T9KY79TYK4');`
+          }}
+        />
+        <Script
+          id="google-tag-manager"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{ __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-TNK4FPN5');` }}
+        />
       </body>
     </html>
   );

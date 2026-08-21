@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { getAdmin } from "@/lib/adminAuth";
 import AdminListLoader from "@/components/AdminListLoader";
 import AdminListSkeleton from "@/components/AdminListSkeleton";
+import AdminShell from "@/components/AdminShell";
 
 export const dynamic = "force-dynamic";
 
@@ -16,18 +17,19 @@ export default async function AdminUpdateListPage() {
   if (!admin) redirect("/admin");
 
   return (
-    <div className="admin-list-body">
-      <div className="container">
-        <h2>📄 All Posts</h2>
-
-        <Suspense fallback={<AdminListSkeleton />}>
-          <AdminListLoader apiUrl="/api/admin/posts" type="update" />
-        </Suspense>
-
-        <a href="/admin/add" className="add-btn">
+    <AdminShell
+      title="All Posts"
+      subtitle="Search, scroll and pick a post to edit."
+      wide
+      actions={
+        <a href="/admin/add" className="adm-btn adm-btn-primary">
           <i className="fas fa-plus"></i> Add New
         </a>
-      </div>
-    </div>
+      }
+    >
+      <Suspense fallback={<AdminListSkeleton />}>
+        <AdminListLoader apiUrl="/api/admin/posts" type="update" />
+      </Suspense>
+    </AdminShell>
   );
 }

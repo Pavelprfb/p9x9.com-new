@@ -6,9 +6,5 @@ export const metadata = {
 };
 
 export default function AdminLoginPage() {
-  return (
-    <div className="admin-login-body">
-      <AdminLogin />
-    </div>
-  );
+  return <AdminLogin />;
 }
