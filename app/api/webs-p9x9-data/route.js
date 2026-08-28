@@ -1,4 +1,4 @@
-// /api/add-bd-p9x9-data - same as old shareDataController.createPostDesi
+// POST /api/webs-p9x9-data - receives data from webs.p9x9.com
 import { NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 import { connectDB } from "@/lib/db";
@@ -20,39 +20,49 @@ export async function POST(req) {
   try {
     const data = await req.json().catch(() => ({}));
 
-    // title lowercase করে check করলে safer হবে (optional)
-    if (data.title) {
-      data.title = data.title.toLowerCase();
+    if (!data.title) {
+      return new NextResponse(
+        JSON.stringify({ success: false, message: "title is required" }),
+        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
-    // category কে array তে রূপান্তর
+    data.title = data.title.toLowerCase();
+
+    if (data.routeName) {
+      data.routeName = data.routeName.toLowerCase().trim();
+    } else {
+      // routeName না থাকলে title থেকে generate
+      data.routeName = data.title.replace(/[^\w\s]/g, "").trim().replace(/\s+/g, "-");
+    }
+
     if (data.category) {
-      data.category = data.category.split(",").map((c) => c.trim());
+      data.category = data.category
+        .split(",")
+        .map((c) => c.trim())
+        .filter((c) => c.length > 0);
     }
 
     await connectDB();
 
-    // Check যদি title database এ থাকে
-    const existingPost = await Post.findOne({ title: data.title });
+    // Post model-এ unique key হলো routeName
+    const existingPost = await Post.findOne({ routeName: data.routeName });
 
     if (existingPost) {
-      // যদি থাকে, বাকি data update করো
       Object.keys(data).forEach((key) => {
-        if (key !== "title") {
-          // title change করা যাবে না
+        if (key !== "routeName" && key !== "title") {
           existingPost[key] = data[key];
         }
       });
       await existingPost.save();
     } else {
-      // না থাকলে create করো
       await Post.create(data);
     }
 
     revalidateTag("posts");
 
     return new NextResponse(
-      JSON.stringify({ success: true, message: "Data saved successfully", title: data.title }),
+      JSON.stringify({ success: true, message: "Data saved successfully", routeName: data.routeName }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
