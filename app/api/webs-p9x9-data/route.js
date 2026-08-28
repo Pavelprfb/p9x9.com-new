@@ -20,49 +20,55 @@ export async function POST(req) {
   try {
     const data = await req.json().catch(() => ({}));
 
-    if (!data.title) {
+    const title = String(data.title || "").trim();
+    if (!title) {
       return new NextResponse(
         JSON.stringify({ success: false, message: "title is required" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    data.title = data.title.toLowerCase();
+    const routeName = String(data.routeName || "")
+      .toLowerCase()
+      .trim();
 
-    if (data.routeName) {
-      data.routeName = data.routeName.toLowerCase().trim();
-    } else {
-      // routeName না থাকলে title থেকে generate
-      data.routeName = data.title.replace(/[^\w\s]/g, "").trim().replace(/\s+/g, "-");
-    }
+    const category = Array.isArray(data.category)
+      ? data.category
+      : String(data.category || "").split(",");
+    const cleanCategory = category
+      .map((c) => String(c).trim())
+      .filter((c) => c.length > 0);
 
-    if (data.category) {
-      data.category = data.category
-        .split(",")
-        .map((c) => c.trim())
-        .filter((c) => c.length > 0);
-    }
+    const postData = {
+      routeName: routeName || title.toLowerCase().replace(/[^\w\s]/g, "").replace(/\s+/g, "-"),
+      title: title.toLowerCase(),
+      description: String(data.description || "").trim(),
+      imageLink: String(data.imageLink || data.img || "").trim(),
+      videoLink: String(data.videoLink || data.video || data.play || "").trim(),
+      duration: String(data.duration || "0").trim(),
+      category: cleanCategory.length ? cleanCategory : ["viral"]
+    };
 
     await connectDB();
 
     // Post model-এ unique key হলো routeName
-    const existingPost = await Post.findOne({ routeName: data.routeName });
+    const existingPost = await Post.findOne({ routeName: postData.routeName });
 
     if (existingPost) {
-      Object.keys(data).forEach((key) => {
-        if (key !== "routeName" && key !== "title") {
-          existingPost[key] = data[key];
+      Object.keys(postData).forEach((key) => {
+        if (key !== "routeName") {
+          existingPost[key] = postData[key];
         }
       });
       await existingPost.save();
     } else {
-      await Post.create(data);
+      await Post.create(postData);
     }
 
     revalidateTag("posts");
 
     return new NextResponse(
-      JSON.stringify({ success: true, message: "Data saved successfully", routeName: data.routeName }),
+      JSON.stringify({ success: true, message: "Data saved successfully", routeName: postData.routeName }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
