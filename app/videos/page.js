@@ -7,7 +7,7 @@ import SearchForm from "@/components/SearchForm";
 import VideoSection from "@/components/VideoSection";
 import GridSkeleton from "@/components/GridSkeleton";
 import AdultWarning from "@/components/AdultWarning";
-
+import Ads from "@/components/Ads";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
@@ -49,6 +49,8 @@ export default async function VideosPage({ searchParams }) {
       </main>
       <Footer />
       <AdultWarning />
+      <Ads />
+      
     </>
   );
 }

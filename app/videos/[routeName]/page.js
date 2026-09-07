@@ -12,6 +12,8 @@ import VideoPlayer from "@/components/VideoPlayer";
 import RelatedVideosSection from "@/components/RelatedVideosSection";
 import RelatedGridSkeleton from "@/components/RelatedGridSkeleton";
 
+import Ads from "@/components/Ads";
+
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }) {
@@ -155,6 +157,7 @@ export default async function SingleVideoPage({ params }) {
         </div>
       </main>
       <Footer />
+      <Ads />
     </>
   );
 }

@@ -9,6 +9,8 @@ import HeroStats from "@/components/HeroStats";
 import GridSkeleton from "@/components/GridSkeleton";
 import AdultWarning from "@/components/AdultWarning";
 
+import Ads from "@/components/Ads";
+
 export const dynamic = "force-dynamic";
 
 export const metadata = {
@@ -79,6 +81,7 @@ export default async function HomePage({ searchParams }) {
       </main>
       <Footer />
       <AdultWarning />
+      <Ads />
     </>
   );
 }
